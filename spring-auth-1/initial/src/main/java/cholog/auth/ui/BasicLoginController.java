@@ -16,6 +16,7 @@ public class BasicLoginController {
     private final AuthService authService;
     private final AuthorizationExtractor<AuthInfo> authorizationExtractor;
 
+    // AuthService를 주입받고, BasicAuthorizationExtractor를 초기화하는 생성자
     public BasicLoginController(AuthService authService) {
         this.authService = authService;
         this.authorizationExtractor = new BasicAuthorizationExtractor();
@@ -31,13 +32,22 @@ public class BasicLoginController {
     @GetMapping("/members/me/basic")
     public ResponseEntity<MemberResponse> findMyInfo(HttpServletRequest request) {
         // TODO: authorization 헤더의 Basic 값에 있는 email과 password 추출 (hint: authorizationExtractor 사용)
-        String email = "";
-        String password = "";
+        AuthInfo authInfo = authorizationExtractor.extract(request);
 
+        // authInfo가 null인 경우, 인증 예외를 발생시킴
+        if (authInfo == null) {
+            throw new AuthorizationException();
+        }
+
+        String email = authInfo.getEmail();
+        String password = authInfo.getPassword();
+
+        // 이메일과 패스워드가 유효하지 않은 경우, 인증 예외를 발생시킴
         if (authService.checkInvalidLogin(email, password)) {
             throw new AuthorizationException();
         }
 
+        // 인증이 성공하면, AuthService를 통해 회원 정보를 조회하고, 응답으로 반환
         MemberResponse member = authService.findMember(email);
         return ResponseEntity.ok().body(member);
     }

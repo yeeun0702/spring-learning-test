@@ -8,6 +8,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 public class BasicAuthorizationExtractor implements AuthorizationExtractor<AuthInfo> {
     private static final String BASIC_TYPE = "Basic";
     private static final String DELIMITER = ":";
+    private static final String AUTHORIZATION = "Authorization";
 
     @Override
     public AuthInfo extract(HttpServletRequest request) {
